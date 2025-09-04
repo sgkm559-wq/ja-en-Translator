@@ -54,12 +54,13 @@ async function translateViaGoogle({ text, source, target, apiKey, endpoint }) {
   return data?.data?.translations?.[0]?.translatedText ?? "";
 }
 
-async function translateViaCustom({ text, source, target, endpoint }) {
+// ★ 変更点1: custom proxy に engine を渡す
+async function translateViaCustom({ text, source, target, endpoint, engine }) {
   if (!endpoint) throw new Error("Custom endpoint required");
   const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ q: text, source, target }),
+    body: JSON.stringify({ q: text, source, target, engine }), // ← engine を一緒に送る
   });
   if (!res.ok) throw new Error(`Custom proxy error ${res.status}`);
   const data = await res.json();
@@ -79,6 +80,9 @@ export default function App() {
   const [glossEnJa, setGlossEnJa] = useState(() => JSON.parse(localStorage.getItem("ts_gloss_en_ja") || "{}"));
   const [history, setHistory] = useState([]);
 
+  // ★ すでに入っていた state を活用
+  const [engine, setEngine] = useState(() => localStorage.getItem("engine") || "deepl");
+
   useEffect(() => { localStorage.setItem("ts_ja", ja); }, [ja]);
   useEffect(() => { localStorage.setItem("ts_en", en); }, [en]);
   useEffect(() => { localStorage.setItem("ts_auto", auto ? "1" : "0"); }, [auto]);
@@ -87,6 +91,7 @@ export default function App() {
   useEffect(() => { localStorage.setItem("ts_endpoint", endpoint); }, [endpoint]);
   useEffect(() => { localStorage.setItem("ts_gloss_ja_en", JSON.stringify(glossJaEn)); }, [glossJaEn]);
   useEffect(() => { localStorage.setItem("ts_gloss_en_ja", JSON.stringify(glossEnJa)); }, [glossEnJa]);
+  useEffect(() => { localStorage.setItem("engine", engine);}, [engine]);
 
   const savePoint = () => setHistory(h => [...h.slice(-39), { ja, en }]);
   const undo = () => setHistory(h => { if (!h.length) return h; const last = h[h.length-1]; setJa(last.ja); setEn(last.en); return h.slice(0,-1); });
@@ -108,7 +113,8 @@ export default function App() {
       } else if (provider === "google") {
         translated = await translateViaGoogle({ text, source, target, apiKey, endpoint });
       } else if (provider === "custom") {
-        translated = await translateViaCustom({ text, source, target, endpoint });
+        // ★ 変更点2: custom のとき engine を渡す
+        translated = await translateViaCustom({ text, source, target, endpoint, engine });
       } else {
         throw new Error("Select a provider (or custom proxy)");
       }
@@ -119,8 +125,8 @@ export default function App() {
     } finally { setBusy(false); }
   };
 
-  const autoTranslateJA = useMemo(() => debounce(() => doTranslate("JA>EN"), 600), [provider, apiKey, endpoint, glossJaEn]);
-  const autoTranslateEN = useMemo(() => debounce(() => doTranslate("EN>JA"), 600), [provider, apiKey, endpoint, glossEnJa]);
+  const autoTranslateJA = useMemo(() => debounce(() => doTranslate("JA>EN"), 600), [provider, apiKey, endpoint, glossJaEn, engine]);
+  const autoTranslateEN = useMemo(() => debounce(() => doTranslate("EN>JA"), 600), [provider, apiKey, endpoint, glossEnJa, engine]);
 
   useEffect(() => { if (auto && detectLang(ja) === "JA") autoTranslateJA(); }, [ja]);
   useEffect(() => { if (auto && detectLang(en) === "EN") autoTranslateEN(); }, [en]);
@@ -172,16 +178,30 @@ export default function App() {
                 <option value="google">Google Cloud Translate</option>
               </select>
             </div>
+
+            {/* ★ 変更点3: Custom proxy 時だけエンジン選択を表示 */}
+            {provider === "custom" && (
+              <div className="flex flex-col">
+                <label className="text-xs text-neutral-500">Engine (for Custom proxy)</label>
+                <select value={engine} onChange={(e)=>setEngine(e.target.value)} className="px-3 py-2 border rounded w-44">
+                  <option value="deepl">DeepL</option>
+                  <option value="google">Google</option>
+                </select>
+              </div>
+            )}
+
             <div className="flex-1 min-w-[200px]">
               <label className="text-xs text-neutral-500">Endpoint (recommended: your proxy URL)</label>
               <input value={endpoint} onChange={(e)=>setEndpoint(e.target.value)} placeholder="https://your.domain/translate" className="px-3 py-2 border rounded w-full"/>
             </div>
+
             {(provider === "deepl" || provider === "google") && (
               <div className="flex-1 min-w-[200px]">
                 <label className="text-xs text-neutral-500">API Key (avoid exposing in client apps)</label>
                 <input value={apiKey} onChange={(e)=>setApiKey(e.target.value)} placeholder="••••••" className="px-3 py-2 border rounded w-full"/>
               </div>
             )}
+
             <div className="text-sm text-neutral-500">
               <p>Tip: deploy a proxy to keep keys safe. You already did with Cloudflare Worker!</p>
             </div>

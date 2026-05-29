@@ -1,11 +1,92 @@
-# JA↔EN Quick Translator (React + Vite)
+# LINEスタンプ クリエイター
+
+Gemini APIを使って、スマホからLINEスタンプのコンセプト作成、画像生成、申請チェックまで進めるReact + Vite製PWAです。
 
 ## 使い方
+
 1. Node.js LTS をインストール済みであることを確認
 2. このフォルダで `npm install`
-3. 開発起動: `npm run dev` → 表示された URL を開く
-4. 画面上部 Settings で
-   - Provider: Custom proxy
-   - Endpoint: あなたの Cloudflare Worker の URL (例: https://blue-cell-48cb.sgkm559.workers.dev)
-   - API Key: 空欄
-5. 日本語/英語を入力して JA→EN / EN→JA ボタンで翻訳
+3. 開発起動: `npm run dev` → 表示されたURLをスマホまたはブラウザで開く
+4. Google AI Studioで取得したGemini APIキーを入力
+5. テーマと雰囲気を選んで、コンセプト生成 → 編集 → 画像生成 → 申請チェックへ進む
+
+## スマホで使いやすくするポイント
+
+- PWA対応のため、スマホブラウザの「ホーム画面に追加」からアプリ風に起動できます。
+- APIキーや入力内容は同じ端末のlocalStorageに保存されます。共有端末では利用後にブラウザデータを削除してください。
+- 生成画像は各カードの「保存」ボタンから端末に保存できます。
+
+## 注意
+
+- Gemini APIキーをフロントエンドに入力するBYOK方式です。本格運用ではサーバーまたはCloudflare Workerなどのプロキシでキーを保護してください。
+- LINE Creators Marketへのアップロード前に、画像サイズ、PNG形式、ファイルサイズ、権利・表現面を必ず確認してください。
+
+
+## 今この状況から続けるには（iPhoneのCodexで作業していた場合）
+
+ここで作った修正版は、iPhoneやPC本体のフォルダではなく、Codexの作業用クラウド環境にあります。なので「iPhoneで作業したからPCの中に無い」のは正常です。続け方は次のどちらかです。
+
+### いちばん簡単: CodexからGitHubへ反映して、Netlifyで公開する
+
+1. PCでCodexを開き、この作業スレッドまたは作成済みPRを開く
+2. 変更内容をGitHubへ反映（PRをマージ、またはブランチをpush）
+3. NetlifyでGitHubリポジトリを選び、下の公開設定を入れる
+4. Netlifyが発行したURLをiPhoneのChromeで開く
+5. Gemini APIキーを入力してテストする
+6. 問題なければiPhoneのホーム画面に追加する
+
+この方法なら、PCにプロジェクトをコピーしなくてもスマホでテストできます。
+
+### PCの中で開いてテストしたい場合
+
+PCローカルで動かす場合だけ、PCへリポジトリを取得します。
+
+```bash
+git clone <GitHubのリポジトリURL>
+cd ja-en-Translator/ja-en-translator
+npm install
+npm run dev -- --host 0.0.0.0
+```
+
+ターミナルに表示された `http://localhost:5173/` をPCで開きます。同じWi-FiのiPhoneから見るときは、PCのIPアドレスを使って `http://<PCのIPアドレス>:5173/` を開きます。
+
+### 迷ったら
+
+「使うためのテスト」なら、まずNetlifyなどで公開するのがおすすめです。`npm run dev` はPCローカル開発用なので、スマホだけで使いたい本番運用では必須ではありません。
+
+## 画像生成でエラーになる場合
+
+画像生成は通常のテキストモデルではなく、Geminiの画像生成対応モデルを使う必要があります。詳細設定を開き、Image model が `gemini-3.1-flash-image` になっているか確認してください。
+
+このアプリではGemini APIのRESTエンドポイントを `https://generativelanguage.googleapis.com/v1` に統一し、画像生成リクエストは `responseModalities: ["TEXT", "IMAGE"]` のみを送るようにしています。以前の保存値や古いデプロイを使っている場合は、再デプロイ後に詳細設定のImage modelを確認してください。
+
+それでも失敗する場合は、画面の各カードに表示されるエラーメッセージを確認してください。APIキーの権限、利用可能地域、レート制限、課金設定、モデル名の入力ミスが原因になることがあります。
+
+## PCなしでスマホから使うには
+
+このアプリはReact/Viteの静的Webアプリなので、スマホだけで日常利用したい場合は、最初に一度だけWebへ公開してください。公開後はPCを起動しなくても、発行されたURLをスマホのブラウザやホーム画面アイコンから開けます。
+
+### おすすめ: Netlify / Vercel / Cloudflare Pagesへ公開
+
+GitHubにこのリポジトリを置いたうえで、ホスティングサービス側で次の設定を使います。
+
+| 項目 | 設定値 |
+| --- | --- |
+| Base / Root directory | `ja-en-translator` |
+| Build command | `npm run build` |
+| Publish / Output directory | `dist` |
+
+Vite公式ガイドでも、本番用ビルドは `npm run build` で行い、標準の出力先 `dist` を任意の静的ホスティングへデプロイする流れです。このリポジトリでは、Netlify向けにルートの `netlify.toml` へ同じ設定を入れてあります。
+
+### 公開後のスマホ利用手順
+
+1. 公開されたURLをスマホで開く
+2. Gemini APIキーを入力
+3. ホーム画面に追加
+4. 次回以降はホーム画面のアイコンから起動
+
+`npm run dev` は開発中にPCで確認するためのコマンドです。スマホだけで使う運用では、公開URLを使うため毎回PCを挟む必要はありません。
+
+### セキュリティ注意
+
+現在はスマホのブラウザにGemini APIキーを保存するBYOK方式です。自分専用・少人数利用なら手軽ですが、誰でもアクセスできるURLとして公開する場合は、APIキーを直接アプリに埋め込まず、Cloudflare Workerなどのプロキシでキーを保護してください。

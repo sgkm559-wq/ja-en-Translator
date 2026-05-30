@@ -84,7 +84,7 @@ async function callGeminiText({ apiKey, model, prompt }) {
 
 async function callGeminiImage({ apiKey, model, prompt }) {
   if (!apiKey.trim()) throw new Error("Gemini APIキーを入力してください。");
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/${encodeURIComponent(model)}:generateContent`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -94,7 +94,6 @@ async function callGeminiImage({ apiKey, model, prompt }) {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
         responseModalities: ["TEXT", "IMAGE"],
-        responseFormat: { image: { aspectRatio: "4:3" } },
       },
     }),
   });

@@ -286,6 +286,7 @@ export default function App() {
                   <input value={settings.textModel} onChange={(e) => update({ textModel: e.target.value })} placeholder={DEFAULT_TEXT_MODEL} className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-xs outline-none" aria-label="Text model" />
                   <label className="block text-xs text-neutral-500">Image model</label>
                   <input value={settings.imageModel} onChange={(e) => update({ imageModel: e.target.value })} placeholder={DEFAULT_IMAGE_MODEL} className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-xs outline-none" aria-label="Image model" />
+                  <button type="button" onClick={() => update({ imageModel: DEFAULT_IMAGE_MODEL })} className="rounded-lg border border-neutral-700 px-3 py-2 text-left text-xs text-neutral-200">画像モデルを推奨値に戻す</button>
                   <p className="text-[11px] leading-5 text-neutral-500">画像生成は画像対応モデル（例: {DEFAULT_IMAGE_MODEL}）を使います。以前の保存値で失敗する場合はこの値に戻してください。</p>
                 </div>}
               </div>

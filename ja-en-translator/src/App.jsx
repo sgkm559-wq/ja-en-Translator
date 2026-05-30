@@ -206,24 +206,27 @@ export default function App() {
     setImages(concept.stamps.map(() => ({ status: "waiting", src: "", error: "" })));
 
     const failures = [];
-    for (let i = 0; i < concept.stamps.length; i += 1) {
-      const stamp = concept.stamps[i];
-      setImages((prev) => prev.map((item, idx) => (idx === i ? { ...item, status: "generating", error: "" } : item)));
-      try {
-        const imagePrompt = `${stamp.prompt_en}. ${stamp.description}. LINE sticker, cute expressive original character, clean bold outline, transparent or plain background, centered composition, no copyrighted characters, no celebrity likeness, no extra text unless the label explicitly says text is needed.`;
-        const src = await callGeminiImage({ apiKey: settings.apiKey, model: settings.imageModel, prompt: imagePrompt });
-        setImages((prev) => prev.map((item, idx) => (idx === i ? { status: "done", src, error: "" } : item)));
-      } catch (err) {
-        const message = err.message || String(err);
-        failures.push(`#${i + 1}: ${message}`);
-        setImages((prev) => prev.map((item, idx) => (idx === i ? { status: "error", src: "", error: message } : item)));
+    try {
+      for (let i = 0; i < concept.stamps.length; i += 1) {
+        const stamp = concept.stamps[i];
+        setImages((prev) => prev.map((item, idx) => (idx === i ? { ...item, status: "generating", error: "" } : item)));
+        try {
+          const imagePrompt = `${stamp.prompt_en}. ${stamp.description}. LINE sticker, cute expressive original character, clean bold outline, transparent or plain background, centered composition, no copyrighted characters, no celebrity likeness, no extra text unless the label explicitly says text is needed.`;
+          const src = await callGeminiImage({ apiKey: settings.apiKey, model: settings.imageModel, prompt: imagePrompt });
+          setImages((prev) => prev.map((item, idx) => (idx === i ? { status: "done", src, error: "" } : item)));
+        } catch (err) {
+          const message = err.message || String(err);
+          failures.push(`#${i + 1}: ${message}`);
+          setImages((prev) => prev.map((item, idx) => (idx === i ? { status: "error", src: "", error: message } : item)));
+        }
+        if (i < concept.stamps.length - 1) await new Promise((resolve) => setTimeout(resolve, 900));
       }
-      if (i < concept.stamps.length - 1) await new Promise((resolve) => setTimeout(resolve, 900));
+      if (failures.length) {
+        setError(`画像生成で${failures.length}件失敗しました。${failures[0]}`);
+      }
+    } finally {
+      setBusy(false);
     }
-    if (failures.length) {
-      setError(`画像生成で${failures.length}件失敗しました。${failures[0]}`);
-    }
-    setBusy(false);
   };
 
   const progress = images.length ? Math.round((images.filter((img) => img.status === "done" || img.status === "error").length / images.length) * 100) : 0;

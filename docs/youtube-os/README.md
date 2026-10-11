@@ -23,6 +23,8 @@
 | 5 | [`05-growth-system.md`](05-growth-system.md) | 成長システム（発見経路・フライホイール・実験ループ） |
 | 6 | [`06-monetization-plan.md`](06-monetization-plan.md) | 収益化計画（YPP要件・段階別マネタイズ・収益スタック） |
 | 7 | [`07-weekly-execution.md`](07-weekly-execution.md) | 週次実行スケジュール、90日ロードマップ、KPIレビュー |
+| 8 | [`08-niche-research.md`](08-niche-research.md) | ニッチ候補6案の比較、チャンネルアイデンティティ、ターゲット視聴者、コンテンツカテゴリ |
+| 9 | [`09-first-100-videos.md`](09-first-100-videos.md) | 成長ポテンシャル順の最初の100本と推奨公開順 |
 | T | [`templates/`](templates/) | 動画企画ブリーフ、台本テンプレ、KPIトラッカー（CSV） |
 
 ## 使い方（最短ルート）

@@ -28,8 +28,9 @@
 | 10 | [`10-production-system.md`](10-production-system.md) | 高CTR×高維持率の制作システム（コンセプト・フック・タイトル・サムネ・構成・維持・CTA・台本・品質チェック） |
 | 11 | [`11-video-packages.md`](11-video-packages.md) | 上位10本の企画パッケージと「なぜ効くのか」の分析 |
 | 12 | [`12-algorithm-growth-strategy.md`](12-algorithm-growth-strategy.md) | アルゴリズムの仕組み、流入経路別の攻略、指標の読み方、投稿頻度、テスト方法、登録者化 |
+| 13 | [`13-ai-production-workflow.md`](13-ai-production-workflow.md) | AI活用の制作ワークフロー（工程別手順、推奨ツール、他プラットフォーム展開、品質チェック） |
 | S | [`scripts/`](scripts/) | 完全台本3本（Shorts切り抜き台本・概要欄テンプレ付き） |
-| T | [`templates/`](templates/) | 動画企画ブリーフ、台本テンプレ、KPIトラッカー（CSV） |
+| T | [`templates/`](templates/) | 動画企画ブリーフ、AIプロンプト集、KPIトラッカー（CSV） |
 
 ## 使い方（最短ルート）
 

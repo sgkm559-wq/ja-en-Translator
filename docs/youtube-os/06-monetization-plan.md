@@ -1,5 +1,7 @@
 # 06. 収益化計画
 
+> 収益源ごとの詳しい手順と導入タイミングは [`14-monetization-system.md`](14-monetization-system.md) にあります。
+
 ## 1. YPP 要件（2026年10月時点の一般的な条件。必ず YouTube Studio で最新を確認）
 
 | 段階 | 条件 | 解放される機能 |

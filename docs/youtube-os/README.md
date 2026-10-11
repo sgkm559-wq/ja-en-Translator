@@ -29,6 +29,7 @@
 | 11 | [`11-video-packages.md`](11-video-packages.md) | 上位10本の企画パッケージと「なぜ効くのか」の分析 |
 | 12 | [`12-algorithm-growth-strategy.md`](12-algorithm-growth-strategy.md) | アルゴリズムの仕組み、流入経路別の攻略、指標の読み方、投稿頻度、テスト方法、登録者化 |
 | 13 | [`13-ai-production-workflow.md`](13-ai-production-workflow.md) | AI活用の制作ワークフロー（工程別手順、推奨ツール、他プラットフォーム展開、品質チェック） |
+| 14 | [`14-monetization-system.md`](14-monetization-system.md) | 収益化システム完全版（YPP・AdSense・アフィリエイト・スポンサー・商品・講座・メンバーシップ・ニュースレター・コミュニティと段階別の導入時期） |
 | S | [`scripts/`](scripts/) | 完全台本3本（Shorts切り抜き台本・概要欄テンプレ付き） |
 | T | [`templates/`](templates/) | 動画企画ブリーフ、AIプロンプト集、KPIトラッカー（CSV） |
 

@@ -31,6 +31,7 @@
 | 13 | [`13-ai-production-workflow.md`](13-ai-production-workflow.md) | AI活用の制作ワークフロー（工程別手順、推奨ツール、他プラットフォーム展開、品質チェック） |
 | 14 | [`14-monetization-system.md`](14-monetization-system.md) | 収益化システム完全版（YPP・AdSense・アフィリエイト・スポンサー・商品・講座・メンバーシップ・ニュースレター・コミュニティと段階別の導入時期） |
 | 15 | [`15-performance-analytics.md`](15-performance-analytics.md) | パフォーマンス最適化システム（指標の読み方、勝ちパターンの特定、弱い動画の改善、週次・月次レビュー） |
+| 16 | [`16-90-day-action-plan.md`](16-90-day-action-plan.md) | 90日間アクションプラン（週ごとのタスク、毎日の習慣、生産性システム、マイルストーン、KPI、調整ルール） |
 | S | [`scripts/`](scripts/) | 完全台本3本（Shorts切り抜き台本・概要欄テンプレ付き） |
 | T | [`templates/`](templates/) | 動画企画ブリーフ、AIプロンプト集、データ記録表（CSV）、週次・月次レビュー |
 | ⚙ | [`tools/`](tools/) | 動画パフォーマンス分析スクリプト（Python・標準ライブラリのみ）とサンプル |

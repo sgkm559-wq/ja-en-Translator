@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RAVIOクエスト確認</title>
+<meta name="theme-color" content="#ff5fa2">
+<style>
+  :root {
+    --bg: #fff7fb;
+    --card: #ffffff;
+    --text: #222226;
+    --muted: #8a8a94;
+    --line: #f0e4ea;
+    --accent: #ff5fa2;
+    --accent-soft: #ffd3e6;
+    --done: #2fb67c;
+    --done-soft: #d9f5e8;
+    --coin: #f6a609;
+    --star: #ff8a00;
+    --track: #f3eef2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17141a;
+      --card: #221e26;
+      --text: #f2eef4;
+      --muted: #a39cab;
+      --line: #342d3a;
+      --accent: #ff6fae;
+      --accent-soft: #4a2638;
+      --done: #46cf93;
+      --done-soft: #1d3a2e;
+      --track: #2f2934;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 16px 96px; }
+  header { padding: 20px 0 8px; text-align: center; }
+  header h1 { margin: 0; font-size: 22px; letter-spacing: .04em; }
+  header p { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+
+  .summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 14px 0; }
+  .sum-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 10px 12px; text-align: left; cursor: pointer; font: inherit; color: inherit;
+  }
+  .sum-card.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .sum-card .name { font-size: 13px; font-weight: 700; }
+  .sum-card .nums { font-size: 12px; color: var(--muted); margin-top: 4px; display: flex; justify-content: space-between; gap: 6px; }
+  .sum-card .left { color: var(--accent); font-weight: 700; }
+  .bar { height: 6px; background: var(--track); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+  .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .2s; }
+
+  .tabs {
+    position: sticky; top: 0; z-index: 5; background: var(--bg);
+    display: flex; gap: 6px; justify-content: center; padding: 10px 0;
+  }
+  .tab {
+    border: 1px solid transparent; background: none; color: var(--muted);
+    font: inherit; font-weight: 700; font-size: 15px; padding: 7px 14px; border-radius: 99px; cursor: pointer;
+  }
+  .tab.active { color: var(--text); border-color: var(--text); }
+
+  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 4px 0 10px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+  .toolbar label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .btn {
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+    font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 99px; cursor: pointer;
+  }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .btn.danger { color: #e0457b; }
+
+  .group-title { font-size: 12px; color: var(--muted); font-weight: 700; margin: 16px 4px 6px; }
+  .list { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .row {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    border-top: 1px solid var(--line); cursor: pointer; user-select: none;
+  }
+  .row:first-child { border-top: none; }
+  .row .title { flex: 1; font-size: 14px; font-weight: 600; line-height: 1.4; min-width: 0; overflow-wrap: anywhere; }
+  .row .title small { display: block; font-weight: 400; font-size: 11px; color: var(--muted); }
+  .row.s2 .title { color: var(--muted); text-decoration: line-through; }
+  .row.s2 .reward { opacity: .45; }
+  .chip {
+    flex: none; font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 99px;
+    background: var(--track); color: var(--muted); min-width: 56px; text-align: center;
+  }
+  .row.s1 .chip { background: var(--accent-soft); color: var(--accent); }
+  .row.s2 .chip { background: var(--done-soft); color: var(--done); }
+  .reward { flex: none; display: flex; flex-direction: column; align-items: center; width: 52px; font-size: 13px; font-weight: 700; }
+  .ico { width: 24px; height: 24px; display: grid; place-items: center; }
+  .coin {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--coin); color: #fff;
+    font-size: 12px; font-weight: 900; display: grid; place-items: center; box-shadow: inset 0 0 0 2px #ffd25e;
+  }
+  .star { color: var(--star); font-size: 22px; line-height: 1; }
+  .del { flex: none; border: none; background: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px; }
+
+  .empty { padding: 24px; text-align: center; color: var(--muted); font-size: 13px; }
+  .note { text-align: center; font-size: 12px; color: var(--muted); margin: 18px 0 0; line-height: 1.6; }
+
+  form.add { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin-top: 12px; display: grid; gap: 8px; }
+  form.add .line { display: flex; gap: 8px; flex-wrap: wrap; }
+  form.add input, form.add select {
+    font: inherit; font-size: 14px; padding: 8px 10px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--text); min-width: 0;
+  }
+  form.add input[name=title] { width: 100%; }
+  form.add input[name=reward] { width: 90px; }
+  form.add input[name=until] { flex: 1; }
+  .until { font-size: 12px; color: var(--muted); margin: 6px 4px 0; }
+  .until.over { color: #e0457b; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>RAVIO クエスト確認</h1>
+    <p>タップで「未達成 → 達成 → 受取済」を切り替え。記録はこの端末のブラウザに保存されます。</p>
+  </header>
+
+  <div class="summary" id="summary"></div>
+  <nav class="tabs" id="tabs"></nav>
+
+  <div class="toolbar">
+    <label><input type="checkbox" id="hideDone"> 受取済を隠す</label>
+    <button class="btn danger" id="resetTab" type="button">このタブをリセット</button>
+  </div>
+
+  <main id="content"></main>
+  <p class="note" id="note"></p>
+</div>
+
+<script>
+(function () {
+  // 報酬アイコン: P = ポイント(コイン), S = スター
+  const QUESTS = {
+    beginner: {
+      label: 'ビギナー',
+      currency: 'P',
+      groups: [
+        { name: null, items: [
+          ['b-profile-img', 'プロフィール画像を登録しよう！', 10],
+          ['b-intro', '自己紹介を登録しよう！', 10],
+          ['b-tl-like', 'タイムラインで7回いいね！してみよう！', 10],
+          ['b-tl-comment', 'タイムラインで7人コメントしてみよう！', 10],
+          ['b-follow', '気になる人を10人フォローしてみよう！', 10],
+          ['b-notice', 'お知らせを確認してみよう！', 10],
+        ] },
+      ],
+    },
+    watch: {
+      label: '視聴',
+      currency: 'P',
+      groups: [
+        { name: 'コメント・ギフト', items: [
+          ['w-comment10', '視聴中にコメントを10回送ろう！', 10],
+          ['w-gift5', '視聴中にギフトを5回贈ろう！', 50],
+        ] },
+        { name: 'オープン配信', items: [
+          ['w-open5', 'オープン配信を5分視聴しよう！', 5],
+          ['w-open10', 'オープン配信を10分視聴しよう！', 10],
+          ['w-open30', 'オープン配信を30分視聴しよう！', 20],
+          ['w-open60', 'オープン配信を60分視聴しよう！', 30],
+        ] },
+        { name: 'プライベート配信', items: [
+          ['w-priv3', 'プライベート配信を3分視聴しよう！', 20],
+          ['w-priv10', 'プライベート配信を10分視聴しよう！', 80],
+          ['w-priv30', 'プライベート配信を30分視聴しよう！', 200],
+          ['w-priv60', 'プライベート配信を60分視聴しよう！', 300],
+        ] },
+        { name: '独り占め配信', items: [
+          ['w-solo3', '独り占め配信を3分視聴しよう！', 30],
+          ['w-solo10', '独り占め配信を10分視聴しよう！', 100],
+          ['w-solo30', '独り占め配信を30分視聴しよう！', 300],
+          ['w-solo60', '独り占め配信を60分視聴しよう！', 500],
+        ] },
+      ],
+    },
+    stream: {
+      label: '配信',
+      currency: 'S',
+      groups: [
+        { name: 'ギフト', items: [
+          ['s-gift3', '配信中にギフトを3回受け取ろう！', 50],
+          ['s-gift10', '配信中にギフトを10回受け取ろう！', 100],
+        ] },
+        { name: 'オープン配信', items: [
+          ['s-open10', 'オープン配信を10分しよう！', 10],
+          ['s-open30', 'オープン配信を30分しよう！', 30],
+          ['s-open60', 'オープン配信を60分しよう！', 100],
+        ] },
+        { name: 'プライベート配信', items: [
+          ['s-priv3', 'プライベート配信を3分しよう！', 20],
+          ['s-priv10', 'プライベート配信を10分しよう！', 80],
+          ['s-priv30', 'プライベート配信を30分しよう！', 200],
+          ['s-priv60', 'プライベート配信を60分しよう！', 300],
+        ] },
+        { name: '独り占め配信', items: [
+          ['s-solo3', '独り占め配信を3分しよう！', 30],
+          ['s-solo10', '独り占め配信を10分しよう！', 100],
+          ['s-solo30', '独り占め配信を30分しよう！', 300],
+          ['s-solo60', '独り占め配信を60分しよう！', 500],
+        ] },
+      ],
+    },
+  };
+  const TAB_ORDER = ['beginner', 'watch', 'stream', 'limited'];
+  const STATUS_LABEL = ['未達成', '達成', '受取済'];
+  const STORAGE_KEY = 'ravio-quest-v1';
+
+  const defaults = { tab: 'beginner', hideDone: false, status: {}, limited: [], limitedUntil: '' };
+  let state = load();
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return Object.assign({}, defaults, JSON.parse(raw));
+    } catch (e) { /* storage unavailable */ }
+    return JSON.parse(JSON.stringify(defaults));
+  }
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+  }
+
+  function itemsOf(tab) {
+    if (tab === 'limited') {
+      return state.limited.map(q => ({ id: q.id, title: q.title, reward: q.reward, currency: q.currency, status: q.status || 0 }));
+    }
+    const def = QUESTS[tab];
+    return def.groups.flatMap(g => g.items.map(([id, title, reward]) =>
+      ({ id, title, reward, currency: def.currency, status: state.status[id] || 0 })));
+  }
+
+  function sumReward(items, pred) {
+    const r = { P: 0, S: 0 };
+    items.filter(pred).forEach(q => { r[q.currency] += Number(q.reward) || 0; });
+    return r;
+  }
+  function fmtReward(r) {
+    const parts = [];
+    if (r.P) parts.push(r.P.toLocaleString() + 'P');
+    if (r.S) parts.push('★' + r.S.toLocaleString());
+    return parts.join(' / ') || '0';
+  }
+  function labelOf(tab) { return tab === 'limited' ? '期間限定' : QUESTS[tab].label; }
+
+  function icon(cur) {
+    return cur === 'S'
+      ? '<span class="ico"><span class="star">★</span></span>'
+      : '<span class="ico"><span class="coin">P</span></span>';
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function renderSummary() {
+    document.getElementById('summary').innerHTML = TAB_ORDER.map(tab => {
+      const items = itemsOf(tab);
+      const done = items.filter(q => q.status === 2).length;
+      const ready = items.filter(q => q.status === 1).length;
+      const remain = sumReward(items, q => q.status !== 2);
+      const pct = items.length ? Math.round(done / items.length * 100) : 0;
+      return `<button type="button" class="sum-card ${tab === state.tab ? 'active' : ''}" data-tab="${tab}">
+        <div class="name">${labelOf(tab)}</div>
+        <div class="nums"><span>受取 ${done}/${items.length}${ready ? `・達成 ${ready}` : ''}</span></div>
+        <div class="nums"><span>残り</span><span class="left">${fmtReward(remain)}</span></div>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+      </button>`;
+    }).join('');
+  }
+
+  function renderTabs() {
+    document.getElementById('tabs').innerHTML = TAB_ORDER.map(tab =>
+      `<button type="button" class="tab ${tab === state.tab ? 'active' : ''}" data-tab="${tab}">${labelOf(tab)}</button>`
+    ).join('');
+  }
+
+  function rowHtml(q, deletable) {
+    return `<div class="row s${q.status}" data-id="${esc(q.id)}">
+      <span class="chip">${STATUS_LABEL[q.status]}</span>
+      <div class="title">${esc(q.title)}</div>
+      <div class="reward">${icon(q.currency)}<span>x${Number(q.reward).toLocaleString()}</span></div>
+      ${deletable ? `<button type="button" class="del" data-del="${esc(q.id)}" aria-label="削除">×</button>` : ''}
+    </div>`;
+  }
+
+  function renderContent() {
+    const el = document.getElementById('content');
+    const visible = q => !(state.hideDone && q.status === 2);
+    let html = '';
+
+    if (state.tab === 'limited') {
+      const items = itemsOf('limited').filter(visible);
+      if (state.limitedUntil) {
+        const over = new Date(state.limitedUntil + 'T23:59:59') < new Date();
+        html += `<p class="until ${over ? 'over' : ''}">期間：${esc(state.limitedUntil)} まで${over ? '（終了しています）' : ''}</p>`;
+      }
+      html += `<div class="list">${items.length ? items.map(q => rowHtml(q, true)).join('')
+        : `<div class="empty">${state.limited.length ? 'すべて受取済です' : '期間限定クエストは未登録です。下から追加してください。'}</div>`}</div>`;
+      html += `<form class="add" id="addForm">
+        <input name="title" placeholder="クエスト名（例：イベント配信を30分しよう！）" required>
+        <div class="line">
+          <input name="reward" type="number" min="0" inputmode="numeric" placeholder="報酬" required>
+          <select name="currency"><option value="P">P（視聴系）</option><option value="S">★（配信系）</option></select>
+          <button class="btn primary" type="submit">追加</button>
+        </div>
+        <div class="line">
+          <input name="until" type="date" value="${esc(state.limitedUntil)}" aria-label="期間の終了日">
+          <button class="btn danger" type="button" id="clearLimited">内容を入れ替える（全削除）</button>
+        </div>
+      </form>`;
+    } else {
+      const def = QUESTS[state.tab];
+      def.groups.forEach(g => {
+        const items = g.items
+          .map(([id, title, reward]) => ({ id, title, reward, currency: def.currency, status: state.status[id] || 0 }))
+          .filter(visible);
+        if (!items.length) return;
+        if (g.name) html += `<div class="group-title">${g.name}</div>`;
+        html += `<div class="list">${items.map(q => rowHtml(q, false)).join('')}</div>`;
+      });
+      if (!html) html = '<div class="list"><div class="empty">すべて受取済です 🎉</div></div>';
+    }
+    el.innerHTML = html;
+
+    document.getElementById('note').textContent = state.tab === 'limited'
+      ? '期間限定クエストは内容が変わるため、開催ごとに登録し直してください。'
+      : 'ビギナー・視聴・配信のクエストは各1回のみ受け取れます。（アプリ内の進捗は直近30日間の利用状況で集計）';
+  }
+
+  function render() {
+    document.getElementById('hideDone').checked = !!state.hideDone;
+    renderSummary();
+    renderTabs();
+    renderContent();
+  }
+
+  function cycle(id) {
+    if (state.tab === 'limited') {
+      const q = state.limited.find(x => x.id === id);
+      if (q) q.status = ((q.status || 0) + 1) % 3;
+    } else {
+      state.status[id] = ((state.status[id] || 0) + 1) % 3;
+    }
+    save(); render();
+  }
+
+  function selectTab(tab) { state.tab = tab; save(); render(); }
+
+  document.getElementById('summary').addEventListener('click', e => {
+    const b = e.target.closest('[data-tab]'); if (b) selectTab(b.dataset.tab);
+  });
+  document.getElementById('tabs').addEventListener('click', e => {
+    const b = e.target.closest('[data-tab]'); if (b) selectTab(b.dataset.tab);
+  });
+  document.getElementById('hideDone').addEventListener('change', e => {
+    state.hideDone = e.target.checked; save(); render();
+  });
+  document.getElementById('resetTab').addEventListener('click', () => {
+    const name = labelOf(state.tab);
+    if (!confirm(`「${name}」の記録をすべて未達成に戻しますか？`)) return;
+    if (state.tab === 'limited') state.limited.forEach(q => { q.status = 0; });
+    else itemsOf(state.tab).forEach(q => { delete state.status[q.id]; });
+    save(); render();
+  });
+
+  const content = document.getElementById('content');
+  content.addEventListener('click', e => {
+    const del = e.target.closest('[data-del]');
+    if (del) {
+      state.limited = state.limited.filter(q => q.id !== del.dataset.del);
+      save(); render(); return;
+    }
+    if (e.target.id === 'clearLimited') {
+      if (!confirm('期間限定クエストをすべて削除しますか？')) return;
+      state.limited = []; state.limitedUntil = '';
+      save(); render(); return;
+    }
+    const row = e.target.closest('.row');
+    if (row) cycle(row.dataset.id);
+  });
+  content.addEventListener('change', e => {
+    if (e.target.name === 'until') { state.limitedUntil = e.target.value; save(); render(); }
+  });
+  content.addEventListener('submit', e => {
+    e.preventDefault();
+    const f = e.target;
+    const title = f.elements.title.value.trim();
+    const reward = parseInt(f.elements.reward.value, 10);
+    if (!title || isNaN(reward)) return;
+    state.limited.push({ id: 'l-' + Date.now().toString(36), title, reward, currency: f.elements.currency.value, status: 0 });
+    save(); render();
+    const next = document.querySelector('#addForm input[name=title]');
+    if (next) next.focus();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
